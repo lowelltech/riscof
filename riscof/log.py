@@ -2,6 +2,7 @@
 
 import logging
 import colorlog
+import time
 
 class Log:
     """
@@ -18,10 +19,12 @@ class Log:
         logging.DEBUG:    ("debug", "dbg")
     }
 
-    def __init__(self, format=None):
+    def __init__(self, format=None, datefmt=None, converter=None):
         if not format:
             format = "%(log_color)s%(levelname)8s%(reset)s | %(log_color)s%(message)s%(reset)s"
         self.format = format
+        self.datefmt = datefmt
+        self.converter = converter
         self.colors = {
             'DEBUG': 'purple',
             'INFO': 'green',
@@ -84,9 +87,18 @@ class Log:
 
         self.stream.setLevel(self._lvl)
 
-        self.stream.setFormatter(colorlog.ColoredFormatter(self.format,log_colors=self.colors))
+        formatter = colorlog.ColoredFormatter(self.format, datefmt=self.datefmt, log_colors=self.colors)
+        if self.converter is not None:
+            formatter.converter = self.converter
+        self.stream.setFormatter(formatter)
         self.logger.setLevel(self._lvl)
 
         self.logger.addHandler(self.stream)
         logging.root.setLevel(self._lvl)
-logger = Log()
+
+
+logger = Log(
+    format="[%(asctime)s.%(msecs)03dZ] %(log_color)s%(levelname)-7s%(reset)s: %(log_color)s%(message)s%(reset)s",
+    datefmt="%Y-%m-%dT%H:%M:%S",
+    converter=time.gmtime
+)

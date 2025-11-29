@@ -157,14 +157,31 @@ class CustomOption(click.Option):
 
 
 @click.group()
-@click.version_option(prog_name="RISC-V Architectural Test Framework.",version=__version__)
-@click.option('--verbose', '-v', default='info', help='Set verbose level', type=click.Choice(['info','error','debug'],case_sensitive=False))
+@click.version_option(prog_name="RISC-V Architectural Test Framework.", version=__version__)
+@click.option("--verbose", "-v", default="info", help="Set verbose level", type=click.Choice(["info","error","debug"],case_sensitive=False))
+@click.option("--log-file",type= click.Path(resolve_path=True, writable=True),
+              help="The Path to the log file. [Default=stdout]",
+              metavar="PATH", default=None)
 @click.pass_context
-def cli(ctx,verbose):
+def cli(ctx, verbose, log_file):
     logger.level(verbose)
-    logger.info('****** RISCOF: RISC-V Architectural Test Framework {0} *******'.format(__version__ ))
-    logger.info('using riscv_isac version : ' + str(riscv_isac.__version__))
-    logger.info('using riscv_config version : ' + str(riscv_config.__version__))
+
+    if log_file is not None:
+        file_handler = logging.FileHandler(log_file, mode="w")
+        file_handler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter(
+            # Strip color codes for file logging
+            logger.format.replace("%(log_color)s","").replace("%(reset)s",""),
+            logger.datefmt,
+        )
+        if logger.converter is not None:
+            formatter.converter = logger.converter
+        file_handler.setFormatter(formatter)
+        logger.logger.addHandler(file_handler)
+
+    logger.info("****** RISCOF: RISC-V Architectural Test Framework {0} *******".format(__version__ ))
+    logger.info("using riscv_isac version : " + str(riscv_isac.__version__))
+    logger.info("using riscv_config version : " + str(riscv_config.__version__))
     ctx.obj = Context()
 
 

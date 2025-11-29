@@ -78,9 +78,43 @@ class makeUtil():
         self.makeCommand=makeCommand
         self.makefilePath = makefilePath
         self.targets = []
+        self.variables = {}
         if os.path.exists(makefilePath) and clean:
             os.remove(makefilePath)
-    def add_target(self,command,tname=""):
+
+    def add_variable(self, name, value=""):
+        """
+        Function to add a variable to the makefile.
+
+        :param name: Name of the variable to be added.
+
+        :type name: str
+
+        :param value: Value of the variable to be added.
+
+        :type value: str
+
+        """
+        self.variables[name] = value
+        with open(self.makefilePath,"a") as makefile:
+            makefile.write("\n"+name+" = "+value+"\n")
+
+    def add_variables(self, **kwargs):
+        """
+        Function to add multiple variables to the makefile.
+
+        :param kwargs: Key value pairs of variable name and value.
+
+        :type kwargs: dict
+
+        """
+        with open(self.makefilePath,"a") as makefile:
+            for name, value in kwargs.items():
+                self.variables[name] = value
+                makefile.write("\n" + name + " = " + value)
+            makefile.write("\n")
+
+    def add_target(self, command, tname=""):
         """
         Function to add a target to the makefile.
 
@@ -97,6 +131,7 @@ class makeUtil():
         with open(self.makefilePath,"a") as makefile:
             makefile.write("\n\n.PHONY : " + tname + "\n" + tname + " :\n\t"+command.replace("\n","\n\t"))
             self.targets.append(tname)
+
     def execute_target(self,tname,cwd="./",timeout=300):
         """
         Function to execute a particular target only.

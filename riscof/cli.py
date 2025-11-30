@@ -356,6 +356,7 @@ def run(ctx,config,work_dir,suite,env,no_browser,dbfile,testfile,no_ref_run,no_d
 
     report_objects['num_passed'] = 0
     report_objects['num_failed'] = 0
+    total_tests = 0
 
     for entry in report_objects['results']:
         if entry['res'] == "Passed":
@@ -363,6 +364,9 @@ def run(ctx,config,work_dir,suite,env,no_browser,dbfile,testfile,no_ref_run,no_d
         else:
             report_objects['num_failed'] += 1
             exitcode = 1
+        total_tests += 1
+
+    logger.info("Test Summary: {0}/{1}".format(report_objects['num_failed'], total_tests))
 
     with open(constants.html_template, "r") as report_template:
         template = Template(report_template.read())

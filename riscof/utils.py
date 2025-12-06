@@ -114,7 +114,7 @@ class makeUtil():
                 makefile.write("\n" + name + " = " + value)
             makefile.write("\n")
 
-    def add_target(self, command, tname="", deps="", phony=True):
+    def add_target(self, command, tname="", deps="", phony=True, append=True):
         """
         Function to add a target to the makefile.
 
@@ -135,7 +135,8 @@ class makeUtil():
             if phony:
                 makefile.write("\n.PHONY: " + tname)
             makefile.write("\n" + tname + ":" + deps + "\n\t"+command.replace("\n","\n\t"))
-            self.targets.append(tname)
+            if append:
+                self.targets.append(tname)
 
     def execute_target(self,tname,cwd="./",timeout=300):
         """
